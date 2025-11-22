@@ -32,14 +32,15 @@ body {
 
 #back-button {
     position: fixed;
-    top: 15px;
-    left: 15px;
+    top: 20px;
+    left: 20px;
     width: 60px;
     height: auto;
     cursor: pointer;
     z-index: 10001;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
+
 
 #back-button:hover {
     opacity: 0.8;
@@ -150,11 +151,119 @@ body {
         max-width: 90%;
     }
 }
+/* ————— RETRO POPUP WINDOW ————— */
+
+#retro-button {
+    position: fixed;
+    top: 26px;
+    right: 20px;
+    width: 60px;
+    cursor: pointer;
+    z-index: 10002;
+    image-rendering: pixelated;
+}
+
+#retro-window {
+    position: fixed;
+    top: 20px;        /* moved UP */
+    right: 15px;      /* moved more RIGHT */
+    width: 360px;     /* bigger window */
+    height: 220px;
+    background: #ffd6f6;
+    color: #5a2a64;
+    border: 3px solid #ff9eea;
+    box-shadow: 0 0 20px #ff9efc;
+    font-family: 'Perfect DOS VGA 437', monospace;
+    border-radius: 6px;
+    display: none;
+    z-index: 10003;
+    image-rendering: pixelated;
+}
+
+
+.retro-titlebar {
+    background: #ffb3ff;
+    padding: 10px;
+    font-weight: bold;
+    border-bottom: 3px solid #ff9eea;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#retro-close {
+    background: #ff66cc;
+    border: 2px solid #ff9eea;
+    color: white;
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#retro-close:hover {
+    background: #ff4eb8;
+}
+
+.retro-content {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.retro-buttons {
+    display: flex;
+    justify-content: center;   /* CENTER buttons horizontally */
+    align-items: center;
+    gap: 15px;                 /* space between buttons */
+    width: 100%;
+}
+
+.retro-btn {
+    width: 170px;        /* ← adjust this to make bigger/smaller squares */
+    height: 100px;       /* same as width = perfect square */
+    background: #ffe2fb;
+    border: 3px solid #ffb3ff;
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+    image-rendering: pixelated;
+    display: flex;               /* ensures centering */
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.retro-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;         /* keeps PNG shape correct */
+    image-rendering: pixelated;
+}
+
+
+.retro-btn:hover {
+    transform: scale(1.08);
+    filter: brightness(1.2);
+}
+
+.retro-btn:active {
+    transform: scale(0.94);
+    filter: brightness(0.85);
+}
+
+
 </style>
 </head>
 <body>
 
 <img id="back-button" src="images/backbutton1.png" alt="Back" loading="eager">
+
+<!-- PINK RETRO WINDOW BUTTON -->
+<img id="retro-button" src="images/retrobutton.png" alt="Open Window">
+
 
 <div id="title">₊˚⊹♡ ᓚ₍ ^. .^₎</div>
 
@@ -191,6 +300,23 @@ body {
 <audio id="song1" src="music/kawaii.mp3" preload="auto" loop></audio>
 
 <script src="https://unpkg.com/cursor-effects@latest/dist/browser.js"></script>
+
+<!-- RETRO POPUP WINDOW -->
+<div id="retro-window">
+    <div class="retro-titlebar">
+        <span class="retro-title">System Message</span>
+        <button id="retro-close">×</button>
+    </div>
+
+   <div class="retro-content">
+    <div class="retro-buttons">
+        <img class="retro-btn" src="images/placeholder1.png" alt="btn1">
+        <img class="retro-btn" src="images/placeholder2.png" alt="btn2">
+        <img class="retro-btn" src="images/placeholder3.png" alt="btn3">
+    </div>
+</div>
+
+
 
 <script>
 (function() {
@@ -264,8 +390,54 @@ body {
         initAudio();
         initCursorEffects();
     });
+    // RETRO WINDOW LOGIC
+const retroBtn = document.getElementById("retro-button");
+const retroWindow = document.getElementById("retro-window");
+const retroClose = document.getElementById("retro-close");
+
+retroBtn.addEventListener("click", () => {
+    retroWindow.style.display = "block";
+});
+
+// close button
+retroClose.addEventListener("click", () => {
+    retroWindow.style.display = "none";
+});
+
+// make window draggable
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+const titlebar = document.querySelector(".retro-titlebar");
+
+titlebar.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    offsetX = e.clientX - retroWindow.offsetLeft;
+    offsetY = e.clientY - retroWindow.offsetTop;
+});
+
+document.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+        retroWindow.style.left = (e.clientX - offsetX) + "px";
+        retroWindow.style.top = (e.clientY - offsetY) + "px";
+    }
+});
+
+document.addEventListener("mouseup", () => {
+    isDragging = false;
+});
+
+document.querySelectorAll(".retro-btn").forEach((btn, index) => {
+    btn.addEventListener("click", () => {
+        console.log("Button " + (index+1) + " clicked!");
+        // Replace with your action for each button
+    });
+});
+
+
 })();
 </script>
 
 </body>
-</html>game
+</html>
