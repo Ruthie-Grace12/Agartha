@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agartha Online</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* ===== GLOBAL ===== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #808080; /* TempleOS gray desktop */
+    color: #000;
+    font-family: "Courier New", monospace;
+}
+
+/* Centered page wrapper like TempleOS Online */
+.page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 12px 8px 32px;
+}
+
+/* ===== HEADER ===== */
+.site-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.site-header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.site-header p {
+    margin: 4px 0 0;
+    font-size: 14px;
+}
+
+/* Optional logo placeholder */
+.site-logo {
+    margin: 10px auto 0;
+    width: 260px;
+    height: 120px;
+    border: 2px solid #000;
+    background: #c0c0c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* ===== TOP MENU (LOAD) ===== */
+.menu-bar {
+    margin-top: 14px;
+    padding: 4px 8px;
+    background: #c0c0c0;
+    border: 2px solid #000;
+    font-size: 13px;
+}
+
+.menu-title {
+    font-weight: bold;
+}
+
+.menu-items {
+    display: inline-block;
+    margin-left: 6px;
+}
+
+.menu-items a {
+    color: #0000ff;
+    text-decoration: none;
+    margin-right: 8px;
+}
+
+.menu-items a:hover {
+    text-decoration: underline;
+}
+
+/* ===== LAYOUT: MAIN + SIDEBAR ===== */
+.content-layout {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+/* main feed on left */
+.main-column {
+    flex: 1 1 60%;
+    min-width: 260px;
+}
+
+/* smaller boxes on right */
+.side-column {
+    flex: 1 1 35%;
+    min-width: 220px;
+}
+
+/* ===== TEMPLE-STYLE WINDOW ===== */
+.window {
+    background: #c0c0c0;
+    border: 2px solid #000;
+    margin-bottom: 10px;
+    box-shadow: 2px 2px 0 #000;
+}
+
+.window-header {
+    background: #000080;
+    color: #fff;
+    padding: 2px 6px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.window-header .title {
+    font-weight: bold;
+}
+
+.window-header .close {
+    border: 1px solid #fff;
+    padding: 0 4px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Window body content */
+.window-body {
+    background: #e0e0e0;
+    padding: 6px 8px;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+/* Basic text styles similar to the “H1/H2/etc” demo window */
+.window-body h1,
+.window-body h2,
+.window-body h3,
+.window-body h4,
+.window-body h5,
+.window-body h6 {
+    margin: 4px 0;
+}
+
+.window-body p {
+    margin: 4px 0;
+}
+
+.window-body blockquote {
+    margin: 4px 0;
+    padding-left: 8px;
+    border-left: 2px solid #000;
+    font-style: italic;
+}
+
+/* Links */
+a {
+    color: #0000ff;
+}
+
+a:visited {
+    color: #800080;
+}
+
+/* Footer */
+.footer {
+    margin-top: 12px;
+    padding-top: 6px;
+    border-top: 2px solid #000;
+    font-size: 12px;
+    text-align: center;
+}
+@media (max-width: 720px) {
+    .content-layout {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+    <!-- ===== HEADER ===== -->
+    <header class="site-header">
+        <h1>Agartha Online</h1>
+        <p>In Memory of &amp; In Conversation With Strange Machines</p>
+
+        <div class="site-logo">
+            <!-- Replace with an <img> if you have a logo -->
+            AGARTHA LOGO HERE
+        </div>
+    </header>
+
+    <!-- ===== LOAD MENU ===== -->
+    <nav class="menu-bar">
+        <span class="menu-title">Load</span>
+        <span class="menu-items">
+            <!-- Anchor links to windows below -->
+            <a href="#c-index">Index</a>
+            <a href="#c-dir">Directory</a>
+            <a href="#c-godword">Oracle</a>
+            <a href="#c-text">Text</a>
+            <a href="#c-games">Games</a>
+            <a href="#c-about">About</a>
+        </span>
+    </nav>
+
+    <!-- ===== MAIN + SIDEBAR ===== -->
+    <div class="content-layout">
+
+        <!-- MAIN COLUMN (like their article/feed + heading demo) -->
+        <div class="main-column">
+
+            <!-- FEED WINDOW -->
+            <section class="window" id="c-articles">
+                <div class="window-header">
+                    <span class="title">&gt; Feed</span>
+                    <span class="close">[X]</span>
+                </div>
+                <div class="window-body">
+                    <!-- Example "posts" like the TempleOS Online feed -->
+                    <p>Posted: 2025-12-04</p>
+                    <h2><a href="#">01. Cowskinner Wakes Up</a></h2>
+                    <p>
+                        First field report from the <strong>Tophet</strong> zone.
+                        Glitches, cows, and a very confused cursor…
+                    </p>
+                    <p><a href="#">Read more</a></p>
+
+                    <hr>
+
+                    <p>Posted: 2025-11-28</p>
+                    <h2><a href="#">What is Agartha OS?</a></h2>
+                    <p>
+                        A fake operating system, a real website, and a shrine to weird
+                        experiments in HTML, CSS, and Holy vibes.
+                    </p>
+                    <p><a href="#">Read more</a></p>
+
+                    <p>&gt; <a href="#">Access Full Feed</a></p>
+                </div>
+            </section>
+
+            <!-- HEADING / TEXT DEMO WINDOW -->
+            <section class="window" id="c-index">
+                <div class="window-header">
+                    <span class="title">Index</span>
+                    <span class="close">[X]</span>
+                </div>
+                <div class="window-body">
+                    <h1>H1 Heading</h1>
+                    <h2>H2 Heading</h2>
+                    <h3>H3 Heading</h3>
+                    <h4>H4 Heading</h4>
+                    <h5>H5 Heading</h5>
+                    <h6>H6 Heading</h6>
+
+                    <p>Paragraph // This text has the [p] tag.</p>
+
+                    <blockquote>
+                        This text is in a [blockquote] tag.
+                    </blockquote>
+
+                    <p><strong>Bold</strong> // This text has the [strong] tag.</p>
+                    <p><em>Italic</em> // This text has the [em] tag.</p>
+                    <p><u>Underline</u> // This text has the [u] tag.</p>
+                    <p><del>Strikethrough // This text has the [del] tag.</del></p>
+
+                    <p>// Replace this whole window with whatever you want your “Index” to be.</p>
+                </div>
+            </section>
+
+        </div><!-- /.main-column -->
+
+        <!-- SIDE COLUMN (Directory / Oracle / Games / Text / About style boxes) -->
+        <div class="side-column">
+
+            <!-- DIRECTORY WINDOW -->
+            <section class="window" id="c-dir">
+                <div class="window-header">
+                    <span class="title">Directory</span>
+                    <span class="close">[X]</span>
+                </div>
+                <div class="window-body">
+                    <p>// Use the LOAD &gt; Index menu to restore closed boxes.</p>
+                    <ul>
+                        <li>&gt; 12/04 23:00 [0007] <a href="#">Agartha_Readme.TXT</a></li>
+                        <li>&gt; 12/02 16:13 [0006] <a href="#">Mouse_Zone.CPP.Z</a></li>
+                        <li>&gt; 11/30 09:44 [0005] <a href="#">Tophet_FieldNotes.LOG</a></li>
+                        <li>&gt; 11/28 05:12 [0004] <a href="#">Cowskinner.HC</a></li>
+                        <li>&gt; 11/25 21:37 [0003] <a href="#">Artifacts.PNG</a></li>
+                    </ul>
+                    <p>&gt; <a href="#">Access Full Feed</a></p>
+                </div>
+            </section>
+
+            <!-- ORACLE / GOD WORD WINDOW -->
+            <section class="window" id="c-godword">
+                <div class="window-header">
+                    <span class="title">Oracle</span>
+                    <span class="close">[X]</span>
+                </div>
+                <div class="window-body">
+                    <p><del>God says:</del></p>
+                    <p><strong>New Word</strong></p>
+                    <p>// You can later hook this to JS to pull a random line.</p>
+                </div>
+            </section>
+
+            <!-- GAMES WINDOW -->
+            <section class="window" id="c-games">
+                <div class="window-header">
+                    <span class="title">Games</span>
+                    <span class="close">[X]</span>
+                </div>
+                <div class="window-body">
+                    <p>// Make games, don’t just play them.</p>
+                    <ul>
+                        <li><a href="#">Adventure Dungeon</a></li>
+                        <li><a href="#">Cowskinner Mini-Game</a></li>
+                        <li><a href="#">Happy Wheels Portal</a></li>
+                        <li><a href="#">Artifact Viewer</a></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- TEXT / EDITOR-LIKE WINDOW -->
+            <section class="window" id="c-text">
+                <div class="window-header">
+                    <span class="title">Text</span>
+                    <span class="close">[X]</span>
+                </div>
+                <div class="window-body">
+                    <p>"*" indicates required fields</p>
+                    <p>Filename*</p>
+                    <p>Post Body*</p>
+                    <p>Author Name*</p>
+                    <p>Email*</p>
+                    <p>Validation*</p>
+                    <p>// You can turn this into a real form later if you want comments or submissions.</p>
+                </div>
+            </section>
+
+            <!-- ABOUT WINDOW -->
+            <section class="window" id="c-about">
+                <div class="window-header">
+                    <span class="title">About</span>
+                    <span class="close">[X]</span>
+                </div>
+                <div class="window-body">
+                    <p>Dedicated to weird code, dead operating systems, and whoever is reading this.</p>
+                    <p>
+                        Agartha Online // A project by <strong>[your name]</strong> 2025
+                    </p>
+                </div>
+            </section>
+
+        </div><!-- /.side-column -->
+
+    </div><!-- /.content-layout -->
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        Dedicated to Everyone Who Ever Booted Something They Didn’t Understand &mdash; Agartha Online 2025
+    </footer>
+
+</div><!-- /.page -->
+</body>
+</html>

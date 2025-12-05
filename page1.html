@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agartha - Mouse</title>
+<style>
+:root {
+    --bg-color: #060022;
+    --text-color: #fff;
+    --glow-color: #ffb3ff;
+    --accent-pink: #ff8ad9;
+    --accent-purple: #b8a5ff;
+    --accent-blue: #7fd3ff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* BASE BODY */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    background-image: url("images/starry.gif");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
+    overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* scanline overlay for the whole page */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.02) 0px,
+        rgba(255,255,255,0.02) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    mix-blend-mode: screen;
+    opacity: 0.5;
+    z-index: 0;
+}
+
+/* RAVE FLASH STATE */
+body.rave-on {
+    filter: invert(1) hue-rotate(180deg) saturate(2) contrast(1.5);
+}
+
+/* BACK BUTTON */
+#back-button {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    width: 60px;
+    height: auto;
+    cursor: pointer;
+    z-index: 10001;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    image-rendering: pixelated;
+}
+
+#back-button:hover {
+    opacity: 0.9;
+    transform: scale(1.05) translateY(-2px);
+}
+
+/* RETRO SETTINGS BUTTON */
+#retro-button {
+    position: fixed;
+    top: 18px;
+    right: 20px;
+    width: 60px;
+    cursor: pointer;
+    z-index: 10002;
+    image-rendering: pixelated;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#retro-button:hover {
+    opacity: 0.9;
+    transform: scale(1.05) rotate(-3deg);
+}
+
+/* PAGE WRAPPER */
+.page-shell {
+    position: relative;
+    z-index: 1;
+    padding: 70px 16px 40px;
+}
+
+/* TITLE + SPARKLES */
+#title {
+    text-align: center;
+    font-size: clamp(2.1rem, 4.6vw, 3rem);
+    margin: 0 0 14px;
+    color: var(--glow-color);
+    letter-spacing: 0.06em;
+    text-shadow:
+        0 0 6px var(--glow-color),
+        0 0 14px var(--glow-color),
+        0 0 26px rgba(255, 179, 255, 0.9);
+    position: relative;
+}
+
+#title::before,
+#title::after {
+    content: "✧";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8em;
+    color: #ffe6ff;
+    text-shadow: 0 0 8px #fff;
+}
+
+#title::before { left: 14%; }
+#title::after  { right: 14%; }
+
+/* LITTLE SUBTITLE / MOOD LINE */
+.title-sub {
+    text-align: center;
+    font-size: 0.8rem;
+    opacity: 0.9;
+    color: #ffe6ff;
+    text-shadow: 0 0 4px rgba(255,255,255,0.6);
+    margin-bottom: 18px;
+}
+
+/* NAV HUD BAR FOR HOME BUTTON GIFS */
+.home-hud {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.home-hud-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        rgba(255,138,217,0.35),
+        rgba(184,165,255,0.35),
+        rgba(127,211,255,0.35)
+    );
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow:
+        0 0 18px rgba(255,179,255,0.8),
+        0 0 30px rgba(136,196,255,0.7);
+    backdrop-filter: blur(8px);
+}
+
+.home-hud-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #fff8ff;
+    text-shadow: 0 0 5px rgba(255,255,255,0.7);
+}
+
+/* MAIN NAV GIF BUTTONS */
+.home-buttons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.gif-button-link {
+    display: inline-block;
+    transition: transform 0.1s ease, filter 0.1s ease;
+    will-change: transform;
+}
+
+.gif-button-link:hover {
+    transform: scale(1.05) translateY(-1px);
+}
+
+.gif-button-link:active {
+    transform: scale(0.94) translateY(1px);
+    filter: brightness(0.9);
+}
+
+.gif-button {
+    width: min(210px, 46vw);
+    height: auto;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    border-radius: 12px;
+}
+
+/* ——— FLOATING SKY STAGE ——— */
+
+.scattered-stage-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.scattered-images {
+    position: relative;
+    width: min(1100px, 100%);
+    height: clamp(380px, 58vh, 520px);
+    margin: 0 auto;
+    padding: 12px 8px 140px;
+    overflow: visible;
+    border-radius: 26px;
+    background: radial-gradient(circle at top,
+        rgba(143, 124, 255, 0.45),
+        rgba(29, 8, 63, 0.9)
+    );
+    box-shadow:
+        0 0 0 2px rgba(255,255,255,0.18),
+        0 0 24px rgba(255, 179, 255, 0.8),
+        0 0 60px rgba(106, 181, 255, 0.9);
+}
+
+/* pastel horizon “ground” band */
+.scattered-images::after {
+    content: "";
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    height: 140px;
+    border-radius: 0 0 24px 24px;
+    background-image: linear-gradient(
+        to top,
+        #ffb6ff 0%,
+        #ffb6ff 20%,
+        #ffb6ff 30%,
+        rgba(255,182,255,0.8) 40%,
+        rgba(184,165,255,0.3) 70%,
+        rgba(0,0,0,0) 100%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+/* INDIVIDUAL FLOATING SPRITES */
+.scattered-image {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    cursor: pointer;
+    overflow: visible;
+}
+
+/* positions tuned for 6 sprites */
+.scattered-image:nth-child(1) { top: 10%; left: 10%; }
+.scattered-image:nth-child(2) { top: 15%; right: 10%; }
+.scattered-image:nth-child(3) { top: 25%; left: 50%; transform: translateX(-50%); }
+.scattered-image:nth-child(4) { bottom: 22%; left: 50%; transform: translateX(-50%); }
+.scattered-image:nth-child(5) { bottom: 18%; left: 20%; }
+.scattered-image:nth-child(6) { bottom: 18%; right: 20%; }
+
+/* SPRITE IMAGE */
+.scattered-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.7));
+    transition: filter 0.2s ease;
+    animation: float 4.6s ease-in-out infinite;
+}
+
+/* different durations / delays so they wobble independently */
+.scattered-image:nth-child(2) img {
+    animation-duration: 5.1s;
+    animation-delay: -0.7s;
+}
+.scattered-image:nth-child(3) img {
+    animation-duration: 6s;
+    animation-delay: -1.2s;
+}
+.scattered-image:nth-child(4) img {
+    animation-duration: 4.2s;
+    animation-delay: -0.4s;
+}
+.scattered-image:nth-child(5) img {
+    animation-duration: 5.4s;
+    animation-delay: -1.6s;
+}
+.scattered-image:nth-child(6) img {
+    animation-duration: 4.8s;
+    animation-delay: -0.9s;
+}
+
+.scattered-image:hover img {
+    filter: drop-shadow(0 0 14px rgba(255,255,255,1))
+            drop-shadow(0 0 18px rgba(255,179,255,0.9));
+}
+
+/* bobbing animation */
+@keyframes float {
+    0%, 100% { transform: translate(-50%, -50%) translateY(3px); }
+    50%      { transform: translate(-50%, -50%) translateY(-10px); }
+}
+
+/* ——— KAWAII SIDE PANEL ——— */
+
+.kawaii-panel {
+    position: fixed;
+    top: 110px;
+    right: 20px;
+    width: 220px;
+    padding: 10px 10px 14px;
+    border-radius: 18px;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.1)),
+        repeating-linear-gradient(
+            45deg,
+            rgba(255,182,255,0.7) 0px,
+            rgba(255,182,255,0.7) 4px,
+            rgba(184,165,255,0.7) 4px,
+            rgba(184,165,255,0.7) 8px
+        );
+    box-shadow:
+        0 0 0 2px rgba(255,255,255,0.9),
+        0 0 18px rgba(255,179,255,0.9);
+    color: #3a1455;
+    z-index: 3;
+    overflow: hidden;
+}
+
+.kawaii-panel-inner {
+    border-radius: 14px;
+    padding: 8px 8px 10px;
+    background: rgba(6,0,34,0.85);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+}
+
+.kawaii-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #ffe6ff;
+}
+
+.kawaii-panel-header-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.kawaii-panel-kitty {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: #ffb6ff;
+    box-shadow: 0 0 6px #ffb6ff;
+    position: relative;
+}
+
+.kawaii-panel-kitty::before,
+.kawaii-panel-kitty::after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: #fff;
+    top: -3px;
+}
+.kawaii-panel-kitty::before { left: 2px; }
+.kawaii-panel-kitty::after  { right: 2px; }
+
+.kawaii-panel-hearts {
+    font-size: 0.8rem;
+}
+
+/* list */
+.kawaii-panel-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0 0;
+    display: grid;
+    gap: 6px;
+}
+
+.kawaii-panel-item {
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.08);
+    padding: 6px 9px;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fef6ff;
+}
+
+.kawaii-panel-item-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.kawaii-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #ff66c8;
+    box-shadow: 0 0 6px #ff66c8;
+}
+
+.kawaii-panel-item span.label {
+    text-transform: lowercase;
+}
+
+/* GAMES item highlighted */
+.kawaii-panel-item.games {
+    background: rgba(255,102,200,0.25);
+    border-color: #ffb6ff;
+    box-shadow: 0 0 10px rgba(255,179,255,0.8);
+}
+
+.kawaii-panel-item.games .kawaii-dot {
+    background: #ff008c;
+    box-shadow: 0 0 8px #ff008c;
+}
+
+.kawaii-panel-item button {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.kawaii-panel-item,
+.kawaii-panel-item button {
+    transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+
+.kawaii-panel-item:hover,
+.kawaii-panel-item button:hover {
+    transform: translateY(-1px);
+    background: rgba(255,255,255,0.16);
+}
+
+/* MOBILE TWEAKS */
+@media (max-width: 768px) {
+    .page-shell {
+        padding-top: 80px;
+    }
+
+    #title::before,
+    #title::after {
+        display: none;
+    }
+
+    .home-hud-inner {
+        padding: 8px 10px;
+        gap: 10px;
+    }
+
+    .home-hud-label {
+        display: none;
+    }
+
+    .gif-button {
+        width: min(170px, 46vw);
+    }
+
+    .scattered-images {
+        height: clamp(360px, 60vh, 460px);
+        border-radius: 20px;
+    }
+
+    .scattered-image {
+        width: 120px;
+        height: 120px;
+    }
+
+    .scattered-image:nth-child(1) { top: 8%; left: 5%; }
+    .scattered-image:nth-child(2) { top: 13%; right: 5%; }
+    .scattered-image:nth-child(3) { top: 26%; left: 50%; }
+    .scattered-image:nth-child(4) { bottom: 22%; left: 50%; }
+    .scattered-image:nth-child(5) { bottom: 18%; left: 12%; }
+    .scattered-image:nth-child(6) { bottom: 18%; right: 12%; }
+
+    .kawaii-panel {
+        position: static;
+        margin: 0 auto 16px;
+        width: min(280px, 100%);
+    }
+}
+
+/* ————— RETRO POPUP WINDOW ————— */
+
+#retro-window {
+    position: fixed;
+    top: 20px;
+    right: 15px;
+    width: 360px;
+    height: 220px;
+    background: #ffd6f6;
+    color: #5a2a64;
+    border: 3px solid #ff9eea;
+    box-shadow: 0 0 20px #ff9efc;
+    font-family: 'Perfect DOS VGA 437', monospace;
+    border-radius: 6px;
+    display: none;
+    z-index: 10003;
+    image-rendering: pixelated;
+}
+
+.retro-titlebar {
+    background: #ffb3ff;
+    padding: 10px;
+    font-weight: bold;
+    border-bottom: 3px solid #ff9eea;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#retro-close {
+    background: #ff66cc;
+    border: 2px solid #ff9eea;
+    color: white;
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#retro-close:hover {
+    background: #ff4eb8;
+}
+
+.retro-content {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.retro-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.retro-btn {
+    width: 170px;
+    height: 100px;
+    background: #ffe2fb;
+    border: 3px solid #ffb3ff;
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+    image-rendering: pixelated;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.retro-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.retro-btn:hover {
+    transform: scale(1.08);
+    filter: brightness(1.2);
+}
+
+.retro-btn:active {
+    transform: scale(0.94);
+    filter: brightness(0.85);
+}
+
+/* ——— FULLSCREEN HELLO-KITTY GAME OVERLAY ——— */
+
+#games-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at top, #bfa6ff 0%, #8357ff 40%, #2c0f4a 100%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20000;
+}
+
+.games-frame {
+    position: relative;
+    width: min(960px, 94vw);
+    height: min(540px, 80vh);
+    background: #bfa6ff;
+    border-radius: 28px;
+    box-shadow:
+        0 0 0 3px #fff,
+        0 0 24px rgba(255,255,255,0.9),
+        0 0 60px rgba(151,123,255,0.9);
+    overflow: hidden;
+    image-rendering: pixelated;
+}
+
+/* HUD like SMB */
+.games-hud {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    padding: 0 24px;
+    font-family: 'Perfect DOS VGA 437', monospace;
+    font-size: 14px;
+    color: #f9ffff;
+    display: flex;
+    justify-content: space-between;
+    text-shadow: 0 0 4px #000;
+    pointer-events: none;
+    z-index: 10; /* ⬅️ put HUD above the canvas */
+}
+
+.games-hud span {
+    letter-spacing: 0.15em;
+}
+
+/* HUD HEARTS – super obvious, boxed, and font-safe */
+.hud-hearts {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+}
+
+/* heart container */
+.heart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid #ff66c8;
+    background: rgba(10, 0, 25, 0.9);
+    box-shadow:
+        0 0 4px #ff66c8,
+        0 0 10px rgba(255, 102, 200, 0.9);
+    /* IMPORTANT: override DOS font so the heart actually exists */
+    font-family: "Segoe UI Symbol", "Apple Color Emoji", system-ui, sans-serif;
+    font-size: 20px;
+    line-height: 1;
+    color: #ff66c8;
+}
+
+/* draw the heart via CSS so the markup can stay empty */
+.heart::before {
+    content: "♥";
+}
+
+/* empty heart = darker, outlined */
+.heart.empty {
+    background: rgba(5, 0, 15, 0.9);
+    border-color: #4a294f;
+    box-shadow:
+        0 0 3px rgba(0, 0, 0, 0.9);
+    color: #4a294f;
+}
+
+/* GAME OVER OVERLAY INSIDE GAME FRAME */
+#gameover-screen {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(0,0,0,0.8), rgba(0,0,0,0.95));
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.gameover-image {
+    max-width: 80%;
+    height: auto;
+    image-rendering: pixelated;
+    margin-bottom: 18px;
+}
+
+#restart-btn {
+    font-family: 'Perfect DOS VGA 437', monospace;
+    padding: 10px 28px;
+    border-radius: 10px;
+    border: 2px solid #ffb6ff;
+    background: #ff66cc;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    box-shadow:
+        0 0 10px rgba(255,102,204,0.9),
+        0 0 20px rgba(255,182,255,0.6);
+}
+
+#restart-btn:hover {
+    background: #ff4eb8;
+}
+
+#restart-btn:active {
+    transform: translateY(1px);
+    box-shadow:
+        0 0 6px rgba(255,102,204,0.7),
+        0 0 14px rgba(255,182,255,0.4);
+}
+
+/* GAME AREA */
+#kitty-game {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("images/kitty-bg1.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+#kitty-game canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* close button */
+#games-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 2px solid #fff;
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 0 4px #000;
+}
+
+#games-close:hover {
+    background: rgba(0,0,0,0.65);
+}
+</style>
+</head>
+<body>
+
+<img id="back-button" src="images/backbutton1.png" alt="Back" loading="eager">
+<img id="retro-button" src="images/retrobutton.png" alt="Open Window">
+
+<div class="page-shell">
+    <div id="title">₊˚⊹♡ ᓚ₍ ^. .^₎</div>
+    <div class="title-sub">starlit wonderland in space</div>
+
+    <!-- KAWAII SIDE PANEL -->
+    <aside class="kawaii-panel">
+        <div class="kawaii-panel-inner">
+            <div class="kawaii-panel-header">
+                <div class="kawaii-panel-header-left">
+                    <div class="kawaii-panel-kitty"></div>
+                    <span>kitty panel</span>
+                </div>
+                <div class="kawaii-panel-hearts">♡♡♡</div>
+            </div>
+            <ul class="kawaii-panel-list">
+                <li class="kawaii-panel-item">
+                    <div class="kawaii-panel-item-left">
+                        <span class="kawaii-dot"></span>
+                        <span class="label">overview</span>
+                    </div>
+                    <span>1-1</span>
+                </li>
+                <li class="kawaii-panel-item">
+                    <div class="kawaii-panel-item-left">
+                        <span class="kawaii-dot"></span>
+                        <span class="label">relic log</span>
+                    </div>
+                    <span>☆</span>
+                </li>
+                <li class="kawaii-panel-item games">
+                    <button type="button" data-panel="games">
+                        <div class="kawaii-panel-item-left">
+                            <span class="kawaii-dot"></span>
+                            <span class="label">games</span>
+                        </div>
+                        <span>▶</span>
+                    </button>
+                </li>
+                <li class="kawaii-panel-item">
+                    <div class="kawaii-panel-item-left">
+                        <span class="kawaii-dot"></span>
+                        <span class="label">options</span>
+                    </div>
+                    <span>⚙</span>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <div class="home-hud">
+        <div class="home-hud-inner">
+            <span class="home-hud-label">warp portal</span>
+            <div class="home-buttons">
+                <a href="page2.html" class="gif-button-link" id="acres-link" aria-label="Go to Acres">
+                    <img src="images/p1button2.gif" alt="Acres" class="gif-button" loading="lazy">
+                </a>
+                <a href="page3.html" class="gif-button-link" aria-label="Go to Tophet">
+                    <img src="images/p1button3.gif" alt="Tophet" class="gif-button" loading="lazy">
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="scattered-stage-wrap">
+        <div class="scattered-images">
+            <div class="scattered-image" data-page="page1subs/page1png1.html">
+                <img src="images/page1png1.gif" alt="Page 1 Tile 1" loading="lazy">
+            </div>
+            <div class="scattered-image" data-page="page1subs/page1png2.html">
+                <img src="images/page1png2.png" alt="Page 1 Tile 2" loading="lazy">
+            </div>
+            <div class="scattered-image" data-page="page1subs/page1png3.html">
+                <img src="images/page1png3.gif" alt="Page 1 Tile 3" loading="lazy">
+            </div>
+            <div class="scattered-image" data-page="page1subs/page1png4.html">
+                <img src="images/page1png4.gif" alt="Page 1 Tile 4" loading="lazy">
+            </div>
+            <div class="scattered-image" data-page="page1subs/page1png5.html">
+                <img src="images/page1png5.gif" alt="Page 1 Tile 5" loading="lazy">
+            </div>
+            <div class="scattered-image" data-page="page1subs/page1png6.html">
+                <img src="images/page1png6.gif" alt="Page 1 Tile 6" loading="lazy">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FULLSCREEN KITTY PLATFORMER OVERLAY -->
+<div id="games-overlay">
+    <div class="games-frame">
+        <button id="games-close">×</button>
+
+       <div class="games-hud">
+    <span>KITTY&nbsp;&nbsp;<span id="hud-score">0000000</span></span>
+
+    <span class="hud-hearts">
+        <span class="heart heart-1"></span>
+        <span class="heart heart-2"></span>
+        <span class="heart heart-3"></span>
+    </span>
+
+    <span>WORLD&nbsp;<span id="hud-world">1-1</span></span>
+    <span>TIME&nbsp;<span id="hud-time">200</span></span>
+</div>
+
+
+        <div id="kitty-game">
+            <canvas id="kitty-canvas"></canvas>
+        </div>
+
+        <!-- GAME OVER SCREEN -->
+        <div id="gameover-screen">
+            <img src="images/gameover.png" alt="Game Over" class="gameover-image">
+            <button id="restart-btn">RESTART</button>
+        </div>
+    </div>
+</div>
+
+<audio id="song1" src="music/kawaii.mp3" preload="auto" loop></audio>
+
+<script src="https://unpkg.com/cursor-effects@latest/dist/browser.js"></script>
+
+<!-- RETRO POPUP WINDOW -->
+<div id="retro-window">
+    <div class="retro-titlebar">
+        <span class="retro-title">System Message</span>
+        <button id="retro-close">×</button>
+    </div>
+
+    <div class="retro-content">
+        <div class="retro-buttons">
+            <img class="retro-btn" src="images/shuffle.png" alt="btn1">
+            <img class="retro-btn" src="images/placeholder2.png" alt="btn2">
+            <img class="retro-btn" src="images/placeholder3.png" alt="btn3">
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const song = document.getElementById('song1');
+    const backButton = document.getElementById('back-button');
+    const acresLink = document.getElementById('acres-link');
+
+    /* ----------- SONG PLAYLIST FOR SHUFFLE / NEXT ----------- */
+    const songs = [
+        "music/kawaii.mp3",
+        "music/diditelluthatimissu.mp3",
+        "music/whydoimissu.mp3",
+        "music/doomcrossing.mp3",
+        "music/ikissed.mp3",
+        "music/weezer.mp3",
+        "music/ectasy.mp3",
+        "music/holdmedown.mp3",
+    ];
+
+    const TARGET_RAVE_SONG = "music/ikissed.mp3";
+    const RAVE_BPM = 285;
+    const BEAT_DURATION = 60 / RAVE_BPM;
+
+    let currentSongIndex = 0;
+    let raveActive = false;
+    let lastBeatIndex = null;
+
+    function stopRave() {
+        raveActive = false;
+        lastBeatIndex = null;
+        document.body.classList.remove('rave-on');
+    }
+
+    function playSongAt(index) {
+        if (!song) return;
+        currentSongIndex = ((index % songs.length) + songs.length) % songs.length;
+        song.src = songs[currentSongIndex];
+        song.currentTime = 0;
+
+        if (songs[currentSongIndex] !== TARGET_RAVE_SONG) {
+            stopRave();
+        } else {
+            raveActive = false;
+            lastBeatIndex = null;
+            document.body.classList.remove('rave-on');
+        }
+
+        song.play().catch(() => {});
+    }
+
+    function goToPage(url) {
+        window.location.href = url;
+    }
+
+    backButton.addEventListener('click', () => goToPage('home.html'));
+
+    document.querySelector('.scattered-images').addEventListener('click', (e) => {
+        const tile = e.target.closest('.scattered-image');
+        if (tile && tile.dataset.page) {
+            goToPage(tile.dataset.page);
+        }
+    });
+
+    if (acresLink) {
+        acresLink.addEventListener('click', () => {
+            const mcclick = document.getElementById('mcclick');
+            if (mcclick) {
+                mcclick.currentTime = 0;
+                mcclick.volume = 1;
+                mcclick.play().catch(() => {});
+            }
+        });
+    }
+
+    function initAudio() {
+        if (!song) return;
+
+        song.volume = 1;
+        song.src = songs[currentSongIndex];
+
+        const playAttempt = song.play();
+
+        if (playAttempt) {
+            playAttempt.catch(() => {
+                const startAudio = () => {
+                    song.play().catch(() => {});
+                    document.removeEventListener('click', startAudio);
+                    document.removeEventListener('keydown', startAudio);
+                };
+
+                document.addEventListener('click', startAudio, { once: true });
+                document.addEventListener('keydown', startAudio, { once: true });
+            });
+        }
+    }
+
+    if (song) {
+        song.addEventListener('timeupdate', () => {
+            const isRaveSong = (songs[currentSongIndex] === TARGET_RAVE_SONG);
+
+            if (!isRaveSong) {
+                stopRave();
+                return;
+            }
+
+            const t = song.currentTime;
+
+            const inRaveWindow =
+                (t >= 23.8 && t < 45.8) ||
+                (t >= 74.7);
+
+            if (!inRaveWindow) {
+                stopRave();
+                return;
+            }
+
+            if (!raveActive) {
+                raveActive = true;
+                lastBeatIndex = null;
+            }
+
+            let offsetStart = 23.8;
+            if (t >= 75) offsetStart = 75;
+
+            const timeSinceStart = t - offsetStart;
+            const beatIndex = Math.floor(timeSinceStart / BEAT_DURATION);
+
+            if (beatIndex !== lastBeatIndex) {
+                lastBeatIndex = beatIndex;
+                document.body.classList.toggle('rave-on');
+            }
+        });
+    }
+
+    function initCursorEffects() {
+        if (window.cursoreffects && window.cursoreffects.fairyDustCursor) {
+            new cursoreffects.fairyDustCursor({
+                colors: ["#ffb3ff", "#ff66ff", "#ffccff"],
+                sprite: "https://i.imgur.com/J7Fq4pR.png"
+            });
+        }
+    }
+
+    window.addEventListener('load', () => {
+        initAudio();
+        initCursorEffects();
+    });
+
+    // RETRO WINDOW LOGIC
+    const retroBtn = document.getElementById("retro-button");
+    const retroWindow = document.getElementById("retro-window");
+    const retroClose = document.getElementById("retro-close");
+
+    retroBtn.addEventListener("click", () => {
+        retroWindow.style.display = "block";
+    });
+
+    retroClose.addEventListener("click", () => {
+        retroWindow.style.display = "none";
+    });
+
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const titlebar = document.querySelector(".retro-titlebar");
+
+    titlebar.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        offsetX = e.clientX - retroWindow.offsetLeft;
+        offsetY = e.clientY - retroWindow.offsetTop;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+            retroWindow.style.left = (e.clientX - offsetX) + "px";
+            retroWindow.style.top = (e.clientY - offsetY) + "px";
+        }
+    });
+
+    document.addEventListener("mouseup", () => {
+        isDragging = false;
+    });
+
+    const retroButtons = document.querySelectorAll(".retro-btn");
+
+    retroButtons.forEach((btn, index) => {
+        btn.addEventListener("click", () => {
+            if (index === 0) {
+                const nextIndex = (currentSongIndex + 1) % songs.length;
+                playSongAt(nextIndex);
+            } else {
+                console.log("Button " + (index+1) + " clicked!");
+            }
+        });
+    });
+
+    // ============ KITTY PLATFORMER – WORLD 1-1 WITH 3 HEARTS ============
+
+    const gamesOverlay = document.getElementById('games-overlay');
+    const gamesOpenBtn = document.querySelector('[data-panel="games"]');
+    const gamesCloseBtn = document.getElementById('games-close');
+
+    const kittyGame = document.getElementById('kitty-game');
+    const canvas = document.getElementById('kitty-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const hudScore = document.getElementById('hud-score');
+    const hudTime  = document.getElementById('hud-time');
+    const hudWorld = document.getElementById('hud-world');
+
+    const heartEls = [
+        document.querySelector('.heart-1'),
+        document.querySelector('.heart-2'),
+        document.querySelector('.heart-3')
+    ];
+
+    const gameOverScreen = document.getElementById('gameover-screen');
+    const restartBtn = document.getElementById('restart-btn');
+
+    // ---------- SPRITE FRAMES (HELLO KITTY PNGS) ----------
+    const kittyAnimations = {
+        idleDown: [
+            "kitty/kitty_idle_front1.png"
+        ],
+        idleUp: [
+            "kitty/kitty_idle_back1.png",
+            "kitty/kitty_idle_back2.png"
+        ],
+        walkRight: [
+            "kitty/kitty_walk_right1.png",
+            "kitty/kitty_walk_right2.png",
+            "kitty/kitty_walk_right3.png"
+        ],
+        walkLeft: [
+            "kitty/kitty_walk_left1.png",
+            "kitty/kitty_walk_left2.png",
+            "kitty/kitty_walk_left3.png"
+        ]
+    };
+
+    const frameImages = {};
+    Object.values(kittyAnimations).flat().forEach(path => {
+        if (!frameImages[path]) {
+            const img = new Image();
+            img.src = path;
+            frameImages[path] = img;
+        }
+    });
+
+    // background image for parallax (same as CSS bg)
+    const bgImage = new Image();
+    bgImage.src = "images/kitty-bg1.jpg";
+
+    // world / physics
+    let worldWidth = 2000;
+    let groundY = 0;
+    let cameraX = 0;
+
+    let player = null;
+    let gravity = 0.3;
+    let moveSpeed = 3.6;
+    let jumpStrength = 11;
+
+    const keys = { left: false, right: false, jump: false };
+
+    let lastTime = performance.now();
+    let running = false;
+
+    // rules: score, time, lives
+    let score = 0;
+    let timeLeft = 200;
+    let lives = 3;
+    let timerId = null;
+
+    // level 1-1 layout (only one level for now)
+    let coins = [];   // {x,y,r,collected}
+    let pipes = [];   // {x,w,h}
+    let enemies = []; // {x,y,w,h,vx,alive}
+    let goalX = 0;
+
+    const level1 = {
+        label: "1-1",
+        lengthFactor: 2.4,
+        timeLimit: 200,
+        coins: [
+            { x: 0.20, y: 0.55 },
+            { x: 0.30, y: 0.45 },
+            { x: 0.40, y: 0.50 },
+            { x: 0.60, y: 0.42 },
+            { x: 0.70, y: 0.35 },
+            { x: 0.80, y: 0.48 }
+        ],
+        pipes: [
+            { x: 0.30, hFactor: 0.22 },
+            { x: 0.65, hFactor: 0.30 }
+        ],
+        enemies: [
+            { x: 0.45, speed: 1.0 },
+            { x: 0.75, speed: 1.1 }
+        ],
+        goalXFactor: 0.95
+    };
+
+    let currentAnim = "idleDown";
+    let frameIndex = 0;
+    let frameTimer = 0;
+    const frameDuration = 100; // ms per frame
+    let lastFacing = 1; // 1 = right, -1 = left
+
+    function resizeCanvas() {
+        const rect = kittyGame.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        groundY = canvas.height - 70;
+        if (player) {
+            player.height = canvas.height * 0.16;
+            player.width = player.height * 0.8;
+            player.y = groundY - player.height;
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        if (!running) return;
+        resizeCanvas();
+    });
+
+    function makePlayer() {
+        const h = canvas.height * 0.16;
+        const w = h * 0.8;
+        return {
+            x: 120,
+            y: groundY - h,
+            width: w,
+            height: h,
+            vx: 0,
+            vy: 0,
+            onGround: false
+        };
+    }
+
+    function worldFromRelative(xFactor, yFactor) {
+        return {
+            x: xFactor * worldWidth,
+            y: yFactor * canvas.height
+        };
+    }
+
+    function updateHud() {
+        if (hudScore) hudScore.textContent = score.toString().padStart(7, "0");
+        if (hudTime)  hudTime.textContent  = timeLeft;
+
+        if (heartEls && heartEls.length) {
+            heartEls.forEach((el, idx) => {
+                if (!el) return;
+                if (idx < lives) {
+                    el.classList.remove('empty');
+                } else {
+                    el.classList.add('empty');
+                }
+            });
+        }
+    }
+
+    function resetTimer() {
+        if (timerId) clearInterval(timerId);
+        timerId = setInterval(() => {
+            timeLeft--;
+            if (timeLeft < 0) timeLeft = 0;
+            updateHud();
+            if (timeLeft <= 0) {
+                endLevel("Time's up! Kitty ran out of time.");
+            }
+        }, 1000);
+    }
+
+    function showGameOver(reason) {
+        if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+        }
+        running = false;
+
+        if (gameOverScreen) {
+            gameOverScreen.style.display = 'flex';
+        } else {
+            alert(reason || "Game Over");
+            gamesOverlay.style.display = 'none';
+        }
+    }
+
+    function endLevel(message) {
+        showGameOver(message || "Game Over");
+    }
+
+    function resetPlayerPosition() {
+        if (!player) return;
+        player = makePlayer();
+        cameraX = 0;
+        currentAnim = "idleDown";
+        frameIndex = 0;
+        frameTimer = 0;
+    }
+
+    function loseLife() {
+        lives--;
+        if (lives < 0) lives = 0;
+        updateHud();
+
+        if (lives <= 0) {
+            showGameOver("Kitty used all her hearts...");
+        } else {
+            resetPlayerPosition();
+        }
+    }
+
+    function completeLevel() {
+        if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+        }
+        running = false;
+        score += 500;
+        updateHud();
+        alert("World 1-1 clear! ♡");
+        gamesOverlay.style.display = 'none';
+    }
+
+    // controls
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+            keys.left = true;
+            e.preventDefault();
+        }
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+            keys.right = true;
+            e.preventDefault();
+        }
+        if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') {
+            keys.jump = true;
+            e.preventDefault();
+        }
+    });
+
+    window.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+            keys.left = false;
+        }
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+            keys.right = false;
+        }
+        if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') {
+            keys.jump = false;
+        }
+    });
+
+    function setAnim(name) {
+        if (name !== currentAnim) {
+            currentAnim = name;
+            frameIndex = 0;
+            frameTimer = 0;
+        }
+    }
+
+  function updatePlayer(delta) {
+    if (!player) return;
+
+    const pw = player.width;
+    const ph = player.height;
+
+    // previous position (before this frame's movement)
+    const prevX = player.x;
+    const prevY = player.y;
+    const prevBottom = prevY + ph;
+
+    // ---------- HORIZONTAL ----------
+    player.vx = 0;
+    if (keys.left) {
+        player.vx -= moveSpeed;
+        lastFacing = -1;
+    }
+    if (keys.right) {
+        player.vx += moveSpeed;
+        lastFacing = 1;
+    }
+    player.x += player.vx;
+
+    // stay in the world
+    if (player.x < 0) player.x = 0;
+    if (player.x + pw > worldWidth) {
+        player.x = worldWidth - pw;
+    }
+
+    // ---------- VERTICAL ----------
+    player.vy += gravity;
+    player.y += player.vy;
+    player.onGround = false;
+
+    // ---------- PIPE COLLISIONS (top vs side) ----------
+    pipes.forEach(p => {
+        const pipeLeft   = p.x;
+        const pipeRight  = p.x + p.w;
+        const pipeTop    = groundY - p.h;
+        const pipeBottom = groundY;
+
+        const playerLeft   = player.x;
+        const playerRight  = player.x + pw;
+        const playerTop    = player.y;
+        const playerBottom = player.y + ph;
+
+        // AABB overlap
+        const overlapX = playerRight > pipeLeft && playerLeft < pipeRight;
+        const overlapY = playerBottom > pipeTop && playerTop < pipeBottom;
+        if (!overlapX || !overlapY) return;
+
+        // Were we clearly above the pipe last frame, now coming down onto it?
+        const fromAbove =
+            prevBottom <= pipeTop + 2 &&   // previously above (tiny tolerance)
+            playerBottom >= pipeTop &&     // now at/through the top
+            player.vy >= 0;                // falling or not moving up
+
+        if (fromAbove) {
+            // snap Kitty to the top of the pipe
+            player.y = pipeTop - ph;
+            player.vy = 0;
+            player.onGround = true;
+        } else {
+            // side collision: push horizontally
+            const prevCenterX = prevX + pw / 2;
+            const pipeCenterX = pipeLeft + p.w / 2;
+
+            if (prevCenterX < pipeCenterX) {
+                // came from left
+                player.x = pipeLeft - pw;
+            } else {
+                // came from right
+                player.x = pipeRight;
+            }
+            player.vx = 0;
+        }
+    });
+
+    // ---------- GROUND COLLISION ----------
+    if (player.y + ph > groundY) {
+        player.y = groundY - ph;
+        player.vy = 0;
+        player.onGround = true;
+    }
+
+    // ---------- JUMP (after collisions so onGround is correct) ----------
+    if (keys.jump && player.onGround) {
+        player.vy = -jumpStrength;
+        player.onGround = false;
+    }
+
+    // ---------- VOID FALL = LOSE LIFE ----------
+    if (player.y > canvas.height + 50) {
+        loseLife();
+        return;
+    }
+
+    // ---------- CAMERA ----------
+    const center = canvas.width / 2;
+    cameraX = player.x - center;
+    if (cameraX < 0) cameraX = 0;
+    if (cameraX > worldWidth - canvas.width) {
+        cameraX = worldWidth - canvas.width;
+    }
+
+    // ---------- ANIMATION ----------
+    if (!player.onGround) {
+        if (lastFacing >= 0) setAnim("walkRight");
+        else setAnim("walkLeft");
+    } else if (Math.abs(player.vx) > 0.1) {
+        if (player.vx > 0) setAnim("walkRight");
+        else setAnim("walkLeft");
+    } else {
+        if (lastFacing >= 0) setAnim("idleDown");
+        else setAnim("walkLeft");
+    }
+
+    frameTimer += delta;
+    if (frameTimer >= frameDuration) {
+        frameTimer = 0;
+        const frames = kittyAnimations[currentAnim];
+        if (frames && frames.length) {
+            frameIndex = (frameIndex + 1) % frames.length;
+        }
+    }
+}
+
+
+   function updateEnemies(delta) {
+    const dt = delta / 16.67; // ~60fps baseline
+    enemies.forEach(e => {
+        if (!e.alive) return;
+        e.x += e.vx * dt;
+
+        // bounce off world edges
+        if (e.x < 0) {
+            e.x = 0;
+            e.vx *= -1;
+        }
+        if (e.x + e.w > worldWidth) {
+            e.x = worldWidth - e.w;
+            e.vx *= -1;
+        }
+
+        // stay on ground
+        e.y = groundY - e.h;
+
+        // collide with pipes (bounce off sides)
+        collideEnemyWithPipes(e);
+    });
+}
+
+function collideEnemyWithPipes(enemy) {
+    pipes.forEach(p => {
+        const pipeX = p.x;
+        const pipeW = p.w;
+        const pipeH = p.h;
+        const pipeTop = groundY - pipeH;
+        const pipeBottom = groundY;
+
+        const ex = enemy.x;
+        const ew = enemy.w;
+        const ey = enemy.y;
+        const eh = enemy.h;
+
+        const overlapsX = ex < pipeX + pipeW && ex + ew > pipeX;
+        const overlapsY = ey < pipeBottom && ey + eh > pipeTop;
+
+        if (!overlapsX || !overlapsY) return;
+
+        // came from left -> bump & flip
+        if (enemy.vx > 0 && ex + ew > pipeX && ex < pipeX) {
+            enemy.x = pipeX - ew;
+            enemy.vx *= -1;
+        }
+        // came from right -> bump & flip
+        else if (enemy.vx < 0 && ex < pipeX + pipeW && ex + ew > pipeX + pipeW) {
+            enemy.x = pipeX + pipeW;
+            enemy.vx *= -1;
+        }
+    });
+}
+
+
+    function drawBackground() {
+        if (bgImage.complete && bgImage.naturalWidth > 0) {
+            const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+            const drawW = bgImage.width * scale;
+            const drawH = bgImage.height * scale;
+            const parallaxX = -cameraX * 0.2;
+            const offsetX = parallaxX % drawW;
+            for (let x = offsetX - drawW; x < canvas.width; x += drawW) {
+                ctx.drawImage(bgImage, x, 0, drawW, drawH);
+            }
+        } else {
+            const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            g.addColorStop(0, '#c9b5ff');
+            g.addColorStop(1, '#9e8cff');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    function drawGroundAndPipes() {
+        const tileSize = 32;
+        const tilesCount = Math.ceil(worldWidth / tileSize);
+        for (let i = 0; i < tilesCount; i++) {
+            const x = i * tileSize - cameraX;
+            const y = groundY;
+            if (x > canvas.width || x + tileSize < -tileSize) continue;
+            ctx.fillStyle = '#496d2d';
+            ctx.fillRect(x, y, tileSize, tileSize);
+            ctx.fillStyle = '#9d962b';
+            ctx.fillRect(x + 4, y + 4, tileSize - 8, tileSize - 10);
+        }
+
+        // pipes
+        pipes.forEach(p => {
+            const screenX = p.x - cameraX;
+            const pipeTopY = groundY - p.h;
+            if (screenX + p.w < -50 || screenX > canvas.width + 50) return;
+
+            ctx.fillStyle = '#7fe6ff';
+            ctx.fillRect(screenX, pipeTopY, p.w, p.h);
+            ctx.fillStyle = '#aef3ff';
+            ctx.fillRect(screenX - 6, pipeTopY - 18, p.w + 12, 18);
+            ctx.strokeStyle = '#3a5780';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(screenX, pipeTopY, p.w, p.h);
+        });
+
+        // goal flag
+        const flagScreenX = goalX - cameraX;
+        const flagBaseY = groundY;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(flagScreenX, flagBaseY - 120, 6, 120);
+        ctx.fillStyle = '#ff4eb8';
+        ctx.beginPath();
+        ctx.moveTo(flagScreenX + 6, flagBaseY - 120);
+        ctx.lineTo(flagScreenX + 60, flagBaseY - 90);
+        ctx.lineTo(flagScreenX + 6, flagBaseY - 60);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawCoins() {
+        coins.forEach(c => {
+            if (c.collected) return;
+            const screenX = c.x - cameraX;
+            const screenY = c.y;
+            if (screenX < -40 || screenX > canvas.width + 40) return;
+            ctx.save();
+            ctx.translate(screenX, screenY);
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(0, 0, c.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ffeeaa';
+            ctx.stroke();
+            ctx.restore();
+        });
+    }
+
+    function drawEnemies() {
+        enemies.forEach(e => {
+            if (!e.alive) return;
+            const screenX = e.x - cameraX;
+            const screenY = e.y;
+            if (screenX < -50 || screenX > canvas.width + 50) return;
+
+            ctx.save();
+            ctx.translate(screenX, screenY);
+            ctx.fillStyle = '#ff7fb3';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, e.w, e.h, 8);
+            ctx.fill();
+
+            // eyes
+            ctx.fillStyle = '#3a1455';
+            ctx.fillRect(e.w * 0.25, e.h * 0.25, 4, 8);
+            ctx.fillRect(e.w * 0.60, e.h * 0.25, 4, 8);
+
+            // tiny feet
+            ctx.fillRect(e.w * 0.15, e.h - 4, 8, 4);
+            ctx.fillRect(e.w * 0.60, e.h - 4, 8, 4);
+
+            ctx.restore();
+        });
+    }
+
+    function drawKitty() {
+        if (!player) return;
+
+        const frames = kittyAnimations[currentAnim] || kittyAnimations.idleDown;
+        const path = frames[frameIndex % frames.length];
+        const img = frameImages[path];
+
+        const x = player.x - cameraX;
+        const y = player.y;
+        const w = player.width;
+        const h = player.height;
+
+        if (img && img.complete && img.naturalWidth > 0) {
+            ctx.drawImage(img, x, y - h * 0.3, w, h * 1.3);
+        } else {
+            ctx.fillStyle = '#fff0f8';
+            ctx.fillRect(x, y, w, h);
+        }
+    }
+
+    function checkCoinCollisions() {
+        const cx = player.x + player.width / 2;
+        const cy = player.y + player.height / 2;
+        coins.forEach(c => {
+            if (c.collected) return;
+            const dx = cx - c.x;
+            const dy = cy - c.y;
+            const distSq = dx*dx + dy*dy;
+            const rad = c.r + Math.max(player.width, player.height) * 0.3;
+            if (distSq < rad * rad) {
+                c.collected = true;
+                score += 100;
+                updateHud();
+            }
+        });
+    }
+
+    function checkEnemyCollisions() {
+        enemies.forEach(e => {
+            if (!e.alive) return;
+
+            const px = player.x;
+            const py = player.y;
+            const pw = player.width;
+            const ph = player.height;
+
+            const ex = e.x;
+            const ey = e.y;
+            const ew = e.w;
+            const eh = e.h;
+
+            const overlapX = px < ex + ew && px + pw > ex;
+            const overlapY = py < ey + eh && py + ph > ey;
+
+            if (!overlapX || !overlapY) return;
+
+            // determine if kitty is stomping from above
+            const playerBottom = py + ph;
+            const enemyTop = ey;
+            const verticalDiff = playerBottom - enemyTop;
+
+            if (player.vy > 0 && verticalDiff < ph * 0.4) {
+                // stomp enemy
+                e.alive = false;
+                player.vy = -jumpStrength * 0.7;
+                score += 200;
+                updateHud();
+            } else {
+                // hit from side or below = lose life
+                loseLife();
+            }
+        });
+    }
+
+    function checkGoal() {
+        if (player.x + player.width > goalX) {
+            completeLevel();
+        }
+    }
+
+    function gameLoop(timestamp) {
+        if (!running) return;
+        const delta = timestamp - lastTime;
+        lastTime = timestamp;
+
+        updatePlayer(delta);
+        updateEnemies(delta);
+        checkCoinCollisions();
+        checkEnemyCollisions();
+        checkGoal();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBackground();
+        drawGroundAndPipes();
+        drawCoins();
+        drawEnemies();
+        drawKitty();
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function buildLevel1() {
+        const lvl = level1;
+        worldWidth = canvas.width * lvl.lengthFactor;
+        groundY = canvas.height - 70;
+
+        player = makePlayer();
+        cameraX = 0;
+
+        coins = lvl.coins.map(c => {
+            const wp = worldFromRelative(c.x, c.y);
+            return {
+                x: wp.x,
+                y: groundY - (canvas.height * (1 - c.y)),
+                r: 11,
+                collected: false
+            };
+        });
+
+        pipes = lvl.pipes.map(p => {
+            const px = p.x * worldWidth;
+            const ph = p.hFactor * canvas.height;
+            return {
+                x: px,
+                w: 60,
+                h: ph
+            };
+        });
+
+        enemies = lvl.enemies.map(e => {
+            const ex = e.x * worldWidth;
+            const size = 26;
+            return {
+                x: ex,
+                y: groundY - size,
+                w: size,
+                h: size,
+                vx: -e.speed,
+                alive: true
+            };
+        });
+
+        goalX = lvl.goalXFactor * worldWidth;
+
+        timeLeft = lvl.timeLimit;
+        hudWorld.textContent = lvl.label;
+        updateHud();
+        resetTimer();
+    }
+
+    function startGame() {
+        running = true;
+        resizeCanvas();
+        buildLevel1();
+        lastTime = performance.now();
+
+        if (gameOverScreen) {
+            gameOverScreen.style.display = 'none';
+        }
+
+        updateHud();
+        requestAnimationFrame(gameLoop);
+    }
+
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            score = 0;
+            lives = 3;
+            timeLeft = level1.timeLimit;
+
+            if (gameOverScreen) {
+                gameOverScreen.style.display = 'none';
+            }
+
+            updateHud();
+            startGame();
+        });
+    }
+
+    if (gamesOverlay && gamesOpenBtn && gamesCloseBtn) {
+        gamesOpenBtn.addEventListener('click', () => {
+            gamesOverlay.style.display = 'flex';
+            score = 0;
+            lives = 3;
+            timeLeft = level1.timeLimit;
+            updateHud();
+            startGame();
+        });
+
+        gamesCloseBtn.addEventListener('click', () => {
+            gamesOverlay.style.display = 'none';
+            running = false;
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+            if (gameOverScreen) {
+                gameOverScreen.style.display = 'none';
+            }
+        });
+
+        gamesOverlay.addEventListener('click', (e) => {
+            if (e.target === gamesOverlay) {
+                gamesOverlay.style.display = 'none';
+                running = false;
+
+                if (timerId) {
+                    clearInterval(timerId);
+                    timerId = null;
+                }
+
+                if (gameOverScreen) {
+                    gameOverScreen.style.display = 'none';
+                }
+            }
+        });
+    }
+
+})();
+</script>
+
+</body>
+</html>
